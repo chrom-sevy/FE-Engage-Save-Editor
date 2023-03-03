@@ -48,17 +48,19 @@ impl SomnielItem {
 pub struct File {
     name: String,
     data: Vec<u8>,
+    sommie_name: String,
 }
 
 impl File {
-    pub fn from(name: &str) -> File {
+    pub fn from(name: &str, sommie_name: &str) -> File {
         File {
-            name: name.to_string() + "_edit",
             data: {
-                let f = std::fs::read(name)
+                let f = std::fs::read(&name)
                 .expect("did not find file");
                 f[..f.len() - 4].to_vec()
             },
+            name: name.to_string(),
+            sommie_name: sommie_name.to_string(),
         }
     }
 
@@ -81,6 +83,13 @@ impl File {
         let b = encode(name);
         let idx = self.search_data(&b).unwrap();
         let mut cursor = std::io::Cursor::new(&self.data[idx..]);
+        cursor.read_u32::<LittleEndian>().unwrap()
+    }
+
+    pub fn get_bond_fragments(&self) -> u32 {
+        let b = encode(&self.sommie_name);
+        let idx = self.search_data(&b).unwrap() - b.len() - 1;
+        let mut cursor = std::io::Cursor::new(&self.data[idx-12..]);
         cursor.read_u32::<LittleEndian>().unwrap()
     }
 
