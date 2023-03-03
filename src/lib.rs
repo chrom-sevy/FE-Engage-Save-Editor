@@ -100,6 +100,20 @@ impl File {
         cursor.write_u32::<LittleEndian>(value).unwrap()
     }
 
+    pub fn get_money(&self) -> u32 {
+        let b = encode(&self.sommie_name);
+        let idx = self.search_data(&b).unwrap() - b.len() - 1;
+        let mut cursor = std::io::Cursor::new(&self.data[idx-12-0x20..]);
+        cursor.read_u32::<LittleEndian>().unwrap()
+    }
+
+    pub fn set_money(&mut self, value: u32) {
+        let b = encode(&self.sommie_name);
+        let idx = self.search_data(&b).unwrap() - b.len() - 1;
+        let mut cursor = std::io::Cursor::new(&mut self.data[idx-12-0x20..]);
+        cursor.write_u32::<LittleEndian>(value).unwrap()
+    }
+
 
     fn search_data(&self, pattern: &[u8]) -> Option<usize> {
         search_bytes(&self.data, pattern)
