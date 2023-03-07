@@ -1,4 +1,5 @@
 use byteorder::{ReadBytesExt, LittleEndian, WriteBytesExt};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[allow(dead_code)]
 pub enum SomnielItem {
@@ -45,15 +46,17 @@ impl SomnielItem {
     }
 }
 
-pub struct File {
+#[wasm_bindgen]
+pub struct SaveFile {
     name: String,
     data: Vec<u8>,
     sommie_name: String,
 }
 
-impl File {
-    pub fn from(name: &str, sommie_name: &str) -> File {
-        File {
+#[wasm_bindgen]
+impl SaveFile {
+    pub fn from_path(name: &str, sommie_name: &str) -> SaveFile {
+        SaveFile {
             data: {
                 let f = std::fs::read(&name)
                 .expect("did not find file");
@@ -62,6 +65,18 @@ impl File {
             name: name.to_string(),
             sommie_name: sommie_name.to_string(),
         }
+    }
+
+    pub fn from_array(name: &str, data: &[u8], sommie_name: &str) -> SaveFile {
+        SaveFile {
+            data: data.to_vec(),
+            name: name.to_owned(),
+            sommie_name: sommie_name.to_string(),
+        }
+    }
+
+    pub fn get_data(self) -> Vec<u8> {
+        self.data
     }
 
     pub fn save(&mut self) {
