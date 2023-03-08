@@ -60,7 +60,7 @@ impl SaveFile {
             data: {
                 let f = std::fs::read(&name)
                 .expect("did not find file");
-                f[..f.len() - 4].to_vec()
+                f.to_vec()
             },
             name: name.to_string(),
             sommie_name: sommie_name.to_string(),
@@ -84,12 +84,30 @@ impl SaveFile {
         self.name.clone()
     }
 
+    pub fn get_stored_sommie_name(&self) -> String {
+        self.sommie_name.clone()
+    }
+
+    pub fn clone(&self) -> Self {
+        Self {
+            data: self.data.clone(),
+            name: self.name.clone(),
+            sommie_name: self.sommie_name.clone(),
+        }
+    }
+
     pub fn save(&mut self) {
-        let mut hasher = crc32fast::Hasher::new();
-        hasher.update(&self.data);
-        let crc32 = hasher.finalize();
-        self.data = [self.data.clone(), crc32.to_le_bytes().to_vec()].concat();
+        self.update_crc32();
         std::fs::write(&self.name, &self.data).expect("could not write file");
+    }
+
+    pub fn update_crc32(&mut self) {
+        let len = self.data.len();
+        let mut hasher = crc32fast::Hasher::new();
+        hasher.update(&self.data[0..len-4]);
+        let crc32 = hasher.finalize();
+        let mut cursor = std::io::Cursor::new(&mut self.data[len-4..]);
+        cursor.write_u32::<LittleEndian>(crc32).unwrap();
     }
 
     pub fn set_simple_u32(&mut self, name: &str, value: u32) {
@@ -99,11 +117,26 @@ impl SaveFile {
         cursor.write_u32::<LittleEndian>(value).unwrap();
     }
 
+    pub fn set_simple_i32(&mut self, name: &str, value: i32) {
+        let b = encode(name);
+        let idx = self.search_data(&b).unwrap();
+        let mut cursor = std::io::Cursor::new(&mut self.data[idx..]);
+        cursor.write_i32::<LittleEndian>(value).unwrap();
+    }
+
+
     pub fn get_simple_u32(&self, name: &str) -> u32 {
         let b = encode(name);
         let idx = self.search_data(&b).unwrap();
         let mut cursor = std::io::Cursor::new(&self.data[idx..]);
         cursor.read_u32::<LittleEndian>().unwrap()
+    }
+
+    pub fn get_simple_i32(&self, name: &str) -> i32 {
+        let b = encode(name);
+        let idx = self.search_data(&b).unwrap();
+        let mut cursor = std::io::Cursor::new(&self.data[idx..]);
+        cursor.read_i32::<LittleEndian>().unwrap()
     }
 
     pub fn get_bond_fragments(&self) -> u32 {
@@ -113,25 +146,25 @@ impl SaveFile {
         cursor.read_u32::<LittleEndian>().unwrap()
     }
 
-    pub fn set_bond_fragments(&mut self, value: u32) {
+    pub fn set_bond_fragments(&mut self, value: i32) {
         let b = encode(&self.sommie_name);
         let idx = self.search_data(&b).unwrap() - b.len() - 1;
         let mut cursor = std::io::Cursor::new(&mut self.data[idx-12..]);
-        cursor.write_u32::<LittleEndian>(value).unwrap()
+        cursor.write_i32::<LittleEndian>(value).unwrap()
     }
 
-    pub fn get_money(&self) -> u32 {
+    pub fn get_money(&self) -> i32 {
         let b = encode(&self.sommie_name);
         let idx = self.search_data(&b).unwrap() - b.len() - 1;
         let mut cursor = std::io::Cursor::new(&self.data[idx-12-0x20..]);
-        cursor.read_u32::<LittleEndian>().unwrap()
+        cursor.read_i32::<LittleEndian>().unwrap()
     }
 
-    pub fn set_money(&mut self, value: u32) {
+    pub fn set_money(&mut self, value: i32) {
         let b = encode(&self.sommie_name);
         let idx = self.search_data(&b).unwrap() - b.len() - 1;
         let mut cursor = std::io::Cursor::new(&mut self.data[idx-12-0x20..]);
-        cursor.write_u32::<LittleEndian>(value).unwrap()
+        cursor.write_i32::<LittleEndian>(value).unwrap()
     }
 
 
