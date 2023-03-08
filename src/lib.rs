@@ -75,8 +75,13 @@ impl SaveFile {
         }
     }
 
-    pub fn get_data(self) -> Vec<u8> {
-        self.data
+    pub fn get_data(&self) -> Vec<u8> {
+        let x = self.data.clone();
+        x
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
     pub fn save(&mut self) {
