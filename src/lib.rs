@@ -19,7 +19,9 @@ pub enum SomnielItem {
     RiderBane,
     ArmorBane,
     FlierBane,
-    CorruptedBane
+    CorruptedBane,
+    SecondSeal,
+    MasterSeal,
 }
 
 impl SomnielItem {
@@ -42,6 +44,8 @@ impl SomnielItem {
             SomnielItem::ArmorBane => "G_所持_IID_素材_重装特効",
             SomnielItem::FlierBane => "G_所持_IID_素材_飛行特効",
             SomnielItem::CorruptedBane => "G_所持_IID_素材_異形特効",
+            SomnielItem::SecondSeal => "G_所持_IID_チェンジプルフ",
+            SomnielItem::MasterSeal => "G_所持_IID_マスタープルフ",
         }
     }
 }
