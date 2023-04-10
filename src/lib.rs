@@ -46,6 +46,8 @@ impl SomnielItem {
             SomnielItem::CorruptedBane => "G_所持_IID_素材_異形特効",
             SomnielItem::SecondSeal => "G_所持_IID_チェンジプルフ",
             SomnielItem::MasterSeal => "G_所持_IID_マスタープルフ",
+            SomnielItem::MysticSatchel => "IID_エンチャント専用プルフ",
+            SomnielItem::MageCannon => "IID_マージカノン専用プルフ",
         }
     }
 }
