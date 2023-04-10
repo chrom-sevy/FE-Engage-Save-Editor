@@ -22,6 +22,8 @@ pub enum SomnielItem {
     CorruptedBane,
     SecondSeal,
     MasterSeal,
+    MysticSatchelk,
+    MageCannon,
 }
 
 impl SomnielItem {
